@@ -7,6 +7,7 @@
 
 import UIKit
 import Foundation
+import CoreData
 
 class EasyGameViewController: UIViewController {
     
@@ -93,9 +94,8 @@ class EasyGameViewController: UIViewController {
         
         if counter == 0 {
             timer.invalidate()
+            //move to recall portion of the game
             recall()
-            
-            //signal move to the recall portion of the game
         }
         
     }
@@ -138,7 +138,6 @@ class EasyGameViewController: UIViewController {
                 previousGuess = tappedImageView.tag
                 firstGuess += 1
                 boardCount += 1
-                print(boardCount)
                 
             }
             
@@ -168,11 +167,11 @@ class EasyGameViewController: UIViewController {
     
     @objc func youLose() {
         subtitle.text = "You Lose"
+        scoreComparison()
         let alert = UIAlertController(title: "Match Failed", message: "You successfully matched \(score) fruits!!", preferredStyle: UIAlertController.Style.alert)
         let cancelButton = UIAlertAction(title: "Quit", style: UIAlertAction.Style.cancel, handler: nil)
         let replayButton = UIAlertAction(title: "Try Again", style: UIAlertAction.Style.default) {
             UIAlertAction in
-            //processing of scores for high scores go here
             self.firstGuess = 0
             self.score = 0
             self.assignFruit()
@@ -220,5 +219,39 @@ class EasyGameViewController: UIViewController {
             
         }
         
+    }
+    
+    @objc func scoreComparison() {
+        //continuing work here next time
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let context = appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "HighScore")
+        fetchRequest.returnsObjectsAsFaults = false
+        
+        do {
+            let results = try context.fetch(fetchRequest)
+            
+            for result in results as! [NSManagedObject] {
+                
+            }
+        } catch {
+            print("error")
+        }
+        
+    }
+    
+    @objc func scoreSaving() {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let context = appDelegate.persistentContainer.viewContext
+        let newHighScore = NSEntityDescription.insertNewObject(forEntityName: "HighScore", into: context)
+        newHighScore.setValue(self.score, forKey: "score")
+        
+        do {
+            try context.save()
+            print("success")
+        } catch {
+            print("error")
+        }
     }
 }
